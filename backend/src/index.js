@@ -18,12 +18,14 @@ mongoose
     console.error("MongoDB connection error:", error);
   });
 
-// test route
+// routes
+const organizationRequestRoutes = require("./routes/organizationRequestRoutes");
+app.use("/api/organization-requests", organizationRequestRoutes);
+
 app.get("/", (req, res) => {
   res.send("Kickoff Backend is running");
 });
 
-// start server
 app.listen(PORT, () => {
   console.log(`Server running on port ${PORT}`);
 });
