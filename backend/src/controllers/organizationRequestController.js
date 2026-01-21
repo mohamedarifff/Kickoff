@@ -4,7 +4,9 @@ const OrganizationRequest = require("../models/OrganizationRequest");
 const nameRegex = /^[A-Za-z ]+$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
 
+// ===============================
 // Submit organization request
+// ===============================
 exports.createOrganizationRequest = async (req, res) => {
   try {
     const {
@@ -78,9 +80,104 @@ exports.createOrganizationRequest = async (req, res) => {
       data: request,
     });
   } catch (error) {
-    console.error(error);
+    console.error("CREATE REQUEST ERROR:", error);
     res.status(500).json({
       message: "Server error",
     });
   }
 };
+
+// ===============================
+// Support Team - Get all requests
+// ===============================
+exports.getOrganizationRequests = async (req, res) => {
+  try {
+    const { status } = req.query;
+
+    let filter = {};
+    if (status) {
+      filter.status = status;
+    }
+
+    const requests = await OrganizationRequest.find(filter).sort({
+      createdAt: -1,
+    });
+
+    res.status(200).json({
+      count: requests.length,
+      data: requests,
+    });
+  } catch (error) {
+    console.error("GET REQUESTS ERROR:", error);
+    res.status(500).json({
+      message: "Server error",
+    });
+  }
+};
+
+// ===============================
+// Approve organization request
+// ===============================
+exports.approveOrganizationRequest = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const request = await OrganizationRequest.findById(id);
+
+    if (!request) {
+      return res.status(404).json({
+        message: "Organization request not found",
+      });
+    }
+
+    request.status = "approved";
+    request.reviewedBy = "Kickoff Support";
+    request.reviewedAt = new Date();
+
+    await request.save();
+
+    res.status(200).json({
+      message: "Organization request approved",
+      data: request,
+    });
+  } catch (error) {
+    console.error("APPROVE ERROR:", error);
+    res.status(500).json({
+      message: "Server error",
+    });
+  }
+};
+
+// ===============================
+// Reject organization request
+// ===============================
+exports.rejectOrganizationRequest = async (req, res) => {
+  try {
+    const { id } = req.params;
+
+    const request = await OrganizationRequest.findById(id);
+
+    if (!request) {
+      return res.status(404).json({
+        message: "Organization request not found",
+      });
+    }
+
+    request.status = "rejected";
+    request.reviewedBy = "Kickoff Support";
+    request.reviewedAt = new Date();
+
+    await request.save();
+
+    res.status(200).json({
+      message: "Organization request rejected",
+      data: request,
+    });
+  } catch (error) {
+    console.error("REJECT ERROR:", error);
+    res.status(500).json({
+      message: "Server error",
+    });
+  }
+};
+
