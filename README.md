@@ -1,102 +1,125 @@
-📌 Project Name
+🏆 Kickoff – Football League Management System
 
-Kickoff – Football League Management System
+Kickoff is a web-based platform designed to simplify the management of football leagues at college, club, and local levels. It replaces manual processes with a structured, secure, and centralized system for handling organization requests and league administration.
 
-🎯 Current Purpose of the System
+🚩 Problem Statement
 
-Kickoff is a centralized web platform that manages football leagues for colleges, clubs, and local organizations, with a controlled onboarding and approval process.
+Football leagues at college, club, and local levels lack a centralized digital system, leading to manual errors, scheduling conflicts, and poor transparency. A secure web-based platform is needed where organizations are verified by a support team and league management is handled in an accurate and organized manner.
 
-👥 Actors (CONFIRMED)
+🎯 Project Objectives
+
+Provide a centralized system for managing football league organizations
+Enable organizations to submit league requests digitally
+Allow a verified support team to approve or reject organization requests
+Ensure secure access using authentication and role-based authorization
+Improve transparency and reduce manual errors
+
+👥 User Roles
 
 Kickoff Support Team
 
-Reviews and approves organization requests
+Secure login
+View all organization requests
+Approve or reject requests
 
 Organization Admin
 
-Requests access to create leagues
+Submit organization registration requests
+Await approval from Kickoff Support
 
-User (Viewer)
+Public Users
 
-Views leagues, fixtures, standings (future sprint)
+View leagues and information (future scope)
 
-🧱 Sprint 1 – Organization Onboarding (COMPLETED)
-✔ Features
+⚙️ Key Features (Implemented)
 
-Organization request submission API
+Secure Support Team Login (JWT-based authentication)
+Role-based access control
+Organization request submission
 
-Strong backend validation
+Approve / Reject workflow
 
-MongoDB persistence
+Status-based filtering (Pending / Approved / Rejected)
+Logout functionality
+Backend validation and error handling
 
-Status tracking (pending, approved, rejected)
+🧱 Tech Stack
 
-🧱 Sprint 2 – Support Team Approval Flow (COMPLETED)
-✔ Backend APIs
+Frontend
 
-GET organization requests (with status filtering)
+React.js (with JSX)
+JavaScript (ES6+)
+Axios
 
-Approve organization request
-
-Reject organization request
-
-Admin-key–protected sensitive routes
-
-✔ Security
-
-Master admin key via .env
-
-Middleware-based authorization
-
-✔ Data Handling
-
-Review metadata (reviewedBy, reviewedAt)
-
-Automatic timestamps
-
-Mongoose versioning (__v) retained
-
-🛠 Tech Stack
 Backend
 
 Node.js
+Express.js
+JWT Authentication
+bcrypt password hashing
 
-Express
+Database
 
-MongoDB Atlas (free tier)
+MongoDB
+Mongoose ODM
 
-Mongoose
+Architecture
 
-Testing
+MERN Stack (MongoDB, Express, React, Node)
 
-Postman
+🔐 Security Measures
 
-Version Control
+Passwords are hashed using bcrypt
+Authentication handled using JWT tokens
+Protected routes for support team actions
+Environment variables used for sensitive data
+No credentials stored in frontend code
 
-Git & GitHub
+📂 Project Structure
+Kickoff/
+│
+├── backend/
+│   ├── src/
+│   │   ├── controllers/
+│   │   ├── routes/
+│   │   ├── models/
+│   │   ├── middleware/
+│   │   └── index.js
+│
+├── frontend/
+│   ├── src/
+│   │   ├── pages/
+│   │   ├── services/
+│   │   └── App.js
+│
+└── README.md
 
-🚀 PROJECT STATUS
-Module	Status
-Organization Requests	✅ Complete
-Approval Workflow	✅ Complete
-Backend Security	✅ Complete
-Support Team APIs	✅ Complete
+🚀 Getting Started (Local Setup)
 
-⏭️ NEXT SPRINT OPTIONS 
-Sprint 3 – Support Team UI (React Dashboard)
+Prerequisites
 
-View requests visually
+Node.js
+MongoDB
+npm
 
-Approve / reject via buttons
+Backend Setup
+cd backend
+npm install
+npm run dev
 
-Sprint 4 – Organization Admin Features
+Frontend Setup
+cd frontend
+npm install
+npm start
 
-League creation
+🛣️ Future Enhancements
 
-Team management
+Organization admin dashboard
+Match scheduling and fixtures
+League tables and rankings
+Public league viewing pages
+Email notifications
+Deployment to cloud platforms (Render, Vercel)
 
-Fixture generation
-
-Sprint 5 – Public User View
-
-View leagues and standings (no login)
+👨‍💻 Author
+Mohamed Arif

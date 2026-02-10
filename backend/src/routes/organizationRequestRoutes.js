@@ -8,16 +8,17 @@ const {
   rejectOrganizationRequest,
 } = require("../controllers/organizationRequestController");
 
-const { adminAuth } = require("../middleware/adminAuth");
+// ✅ USE SUPPORT AUTH (JWT)
+const supportAuth = require("../middleware/supportAuth");
 
 // Support team - view requests
-router.get("/", getOrganizationRequests);
+router.get("/", supportAuth, getOrganizationRequests);
 
 // Support team - approve / reject
-router.patch("/:id/approve", adminAuth, approveOrganizationRequest);
-router.patch("/:id/reject", adminAuth, rejectOrganizationRequest);
+router.patch("/:id/approve", supportAuth, approveOrganizationRequest);
+router.patch("/:id/reject", supportAuth, rejectOrganizationRequest);
 
-// Organization submits request
+// Organization submits request (PUBLIC)
 router.post("/request", createOrganizationRequest);
 
 module.exports = router;
