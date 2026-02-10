@@ -75,25 +75,6 @@ Protected routes for support team actions
 Environment variables used for sensitive data
 No credentials stored in frontend code
 
-📂 Project Structure
-Kickoff/
-│
-├── backend/
-│   ├── src/
-│   │   ├── controllers/
-│   │   ├── routes/
-│   │   ├── models/
-│   │   ├── middleware/
-│   │   └── index.js
-│
-├── frontend/
-│   ├── src/
-│   │   ├── pages/
-│   │   ├── services/
-│   │   └── App.js
-│
-└── README.md
-
 🚀 Getting Started (Local Setup)
 
 Prerequisites
