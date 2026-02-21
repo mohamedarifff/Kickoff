@@ -23,5 +23,5 @@ export const fetchRequests = (status) =>
 export const approveRequest = (id) =>
   API.patch(`/organization-requests/${id}/approve`);
 
-export const rejectRequest = (id) =>
-  API.patch(`/organization-requests/${id}/reject`);
+export const rejectRequest = (id, reason) =>
+  API.patch(`/organization-requests/${id}/reject`, { reason });

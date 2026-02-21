@@ -1,10 +1,11 @@
 const OrganizationRequest = require("../models/OrganizationRequest");
 
-// Helper regex
 const nameRegex = /^[A-Za-z ]+$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
 const sendEmail = require("../utils/sendEmail");
 const bcrypt = require("bcryptjs");
+const crypto = require("crypto");
 const OrganizationAdmin = require("../models/OrganizationAdmin");
 
 
@@ -21,7 +22,6 @@ exports.createOrganizationRequest = async (req, res) => {
       purpose,
     } = req.body;
 
-    // 1️⃣ Check empty fields
     if (
       !organizationName ||
       !adminName ||
@@ -34,55 +34,88 @@ exports.createOrganizationRequest = async (req, res) => {
       });
     }
 
-    // 2️⃣ Validate organization name
-    if (!nameRegex.test(organizationName)) {
+    if (!nameRegex.test(organizationName) || organizationName.length < 3) {
       return res.status(400).json({
-        message:
-          "Organization name must contain only letters and spaces (no numbers or symbols)",
+        message: "Invalid organization name",
       });
     }
 
-    if (organizationName.length < 3) {
-      return res.status(400).json({
-        message: "Organization name must be at least 3 characters long",
-      });
-    }
-
-    // 3️⃣ Validate admin name
     if (!nameRegex.test(adminName)) {
       return res.status(400).json({
-        message:
-          "Admin name must contain only letters and spaces (no numbers or symbols)",
+        message: "Invalid admin name",
       });
     }
 
-    // 4️⃣ Validate email
     if (!emailRegex.test(adminEmail)) {
       return res.status(400).json({
-        message: "Please provide a valid email address",
+        message: "Invalid email address",
       });
     }
 
-    // 5️⃣ Validate purpose
     if (purpose.length < 10) {
       return res.status(400).json({
         message: "Purpose must be at least 10 characters long",
       });
     }
 
-    // 6️⃣ Create request
+    const normalizedEmail = adminEmail.toLowerCase().trim();
+
+    // 🚫 Block if already approved (admin account exists)
+    const existingAdmin = await OrganizationAdmin.findOne({
+      email: normalizedEmail,
+    });
+
+    if (existingAdmin) {
+      return res.status(400).json({
+        message:
+          "This organization is already approved and has login credentials.",
+      });
+    }
+
+    // 🚫 Block if already pending
+    const existingPending = await OrganizationRequest.findOne({
+      adminEmail: normalizedEmail,
+      status: "pending",
+    });
+
+    if (existingPending) {
+      return res.status(400).json({
+        message:
+          "An application with this email is already under review.",
+      });
+    }
+
+    // ✅ Allow reapply if previous request was rejected
+
     const request = await OrganizationRequest.create({
       organizationName: organizationName.trim(),
       adminName: adminName.trim(),
-      adminEmail: adminEmail.toLowerCase().trim(),
+      adminEmail: normalizedEmail,
       organizationType,
       purpose: purpose.trim(),
     });
+
+    // 📧 Confirmation email
+    await sendEmail(
+      normalizedEmail,
+      "Kickoff Application Received",
+      `Hello ${adminName},
+
+Your organization request for "${organizationName}" has been received.
+
+Our support team will review your application shortly.
+
+You will receive an email once it is approved or rejected.
+
+Regards,
+Kickoff Support Team`
+    );
 
     res.status(201).json({
       message: "Organization request submitted successfully",
       data: request,
     });
+
   } catch (error) {
     console.error("CREATE REQUEST ERROR:", error);
     res.status(500).json({
@@ -90,6 +123,7 @@ exports.createOrganizationRequest = async (req, res) => {
     });
   }
 };
+
 
 // ===============================
 // Support Team - Get all requests
@@ -111,6 +145,7 @@ exports.getOrganizationRequests = async (req, res) => {
       count: requests.length,
       data: requests,
     });
+
   } catch (error) {
     console.error("GET REQUESTS ERROR:", error);
     res.status(500).json({
@@ -118,6 +153,7 @@ exports.getOrganizationRequests = async (req, res) => {
     });
   }
 };
+
 
 // ===============================
 // Approve organization request
@@ -140,30 +176,39 @@ exports.approveOrganizationRequest = async (req, res) => {
       });
     }
 
-    // 🔐 Generate temporary password
-    const tempPassword = Math.random().toString(36).slice(-8);
+    const normalizedEmail = request.adminEmail.toLowerCase().trim();
 
-    // 🔐 Hash password
+    const existingAdmin = await OrganizationAdmin.findOne({
+      email: normalizedEmail,
+    });
+
+    if (existingAdmin) {
+      return res.status(400).json({
+        message: "Organization admin already exists",
+      });
+    }
+
+    const tempPassword = crypto.randomBytes(4).toString("hex");
     const hashedPassword = await bcrypt.hash(tempPassword, 10);
 
-    // 🏢 Create Organization Admin account
     await OrganizationAdmin.create({
       organizationName: request.organizationName,
-      email: request.adminEmail,
+      adminName: request.adminName,
+      email: normalizedEmail,
       password: hashedPassword,
       organizationType: request.organizationType,
       approvedBy: "Kickoff Support",
+      mustChangePassword: true,
     });
 
-    // 📧 Send email with credentials
     await sendEmail(
-      request.adminEmail,
+      normalizedEmail,
       "Kickoff Organization Approved",
       `Hello ${request.adminName},
 
 Your organization "${request.organizationName}" has been approved.
 
-Login Email: ${request.adminEmail}
+Login Email: ${normalizedEmail}
 Temporary Password: ${tempPassword}
 
 Please login and change your password immediately.
@@ -172,11 +217,9 @@ Regards,
 Kickoff Support Team`
     );
 
-    // ✅ Update request status
     request.status = "approved";
     request.reviewedBy = "Kickoff Support";
     request.reviewedAt = new Date();
-
     await request.save();
 
     res.status(200).json({
@@ -198,6 +241,7 @@ Kickoff Support Team`
 exports.rejectOrganizationRequest = async (req, res) => {
   try {
     const { id } = req.params;
+    const { reason } = req.body;
 
     const request = await OrganizationRequest.findById(id);
 
@@ -208,15 +252,33 @@ exports.rejectOrganizationRequest = async (req, res) => {
     }
 
     request.status = "rejected";
+    request.rejectionReason =
+      reason || "Application did not meet platform requirements";
     request.reviewedBy = "Kickoff Support";
     request.reviewedAt = new Date();
 
     await request.save();
 
+    await sendEmail(
+      request.adminEmail,
+      "Kickoff Organization Application Rejected",
+      `Hello ${request.adminName},
+
+We regret to inform you that your organization "${request.organizationName}" has been rejected.
+
+Reason:
+${request.rejectionReason}
+
+You may submit a new request if you wish.
+
+Regards,
+Kickoff Support Team`
+    );
+
     res.status(200).json({
-      message: "Organization request rejected",
-      data: request,
+      message: "Organization request rejected and email sent",
     });
+
   } catch (error) {
     console.error("REJECT ERROR:", error);
     res.status(500).json({
@@ -224,4 +286,3 @@ exports.rejectOrganizationRequest = async (req, res) => {
     });
   }
 };
-

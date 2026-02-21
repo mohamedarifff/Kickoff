@@ -38,6 +38,11 @@ const organizationRequestSchema = new mongoose.Schema(
       default: "pending",
     },
 
+    rejectionReason: {
+      type: String,
+      default: null,
+    },
+
     reviewedBy: {
       type: String, // Kickoff support identifier
       default: null,
