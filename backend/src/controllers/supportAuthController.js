@@ -4,18 +4,25 @@ const jwt = require("jsonwebtoken");
 
 exports.supportLogin = async (req, res) => {
   try {
-    const { email, password } = req.body;
+
+    const email = req.body.email?.toLowerCase().trim();
+    const password = req.body.password?.trim();
 
     if (!email || !password) {
       return res.status(400).json({ message: "All fields are required" });
     }
 
-    const user = await SupportUser.findOne({ email });
+    const user = await SupportUser.findOne({
+      email: email.toLowerCase().trim(),
+    });
+
     if (!user) {
+      console.log("USER NOT FOUND");
       return res.status(401).json({ message: "Invalid credentials" });
     }
 
     const isMatch = await bcrypt.compare(password, user.password);
+
     if (!isMatch) {
       return res.status(401).json({ message: "Invalid credentials" });
     }
@@ -26,7 +33,7 @@ exports.supportLogin = async (req, res) => {
       { expiresIn: "1d" }
     );
 
-    res.status(200).json({
+    return res.status(200).json({
       message: "Support login successful",
       token,
       user: {
@@ -34,8 +41,9 @@ exports.supportLogin = async (req, res) => {
         email: user.email,
       },
     });
+
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: "Server error" });
+    console.error("LOGIN ERROR:", error);
+    return res.status(500).json({ message: "Server error" });
   }
 };

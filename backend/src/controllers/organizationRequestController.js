@@ -3,6 +3,10 @@ const OrganizationRequest = require("../models/OrganizationRequest");
 // Helper regex
 const nameRegex = /^[A-Za-z ]+$/;
 const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const sendEmail = require("../utils/sendEmail");
+const bcrypt = require("bcryptjs");
+const OrganizationAdmin = require("../models/OrganizationAdmin");
+
 
 // ===============================
 // Submit organization request
@@ -130,6 +134,45 @@ exports.approveOrganizationRequest = async (req, res) => {
       });
     }
 
+    if (request.status === "approved") {
+      return res.status(400).json({
+        message: "Request already approved",
+      });
+    }
+
+    // 🔐 Generate temporary password
+    const tempPassword = Math.random().toString(36).slice(-8);
+
+    // 🔐 Hash password
+    const hashedPassword = await bcrypt.hash(tempPassword, 10);
+
+    // 🏢 Create Organization Admin account
+    await OrganizationAdmin.create({
+      organizationName: request.organizationName,
+      email: request.adminEmail,
+      password: hashedPassword,
+      organizationType: request.organizationType,
+      approvedBy: "Kickoff Support",
+    });
+
+    // 📧 Send email with credentials
+    await sendEmail(
+      request.adminEmail,
+      "Kickoff Organization Approved",
+      `Hello ${request.adminName},
+
+Your organization "${request.organizationName}" has been approved.
+
+Login Email: ${request.adminEmail}
+Temporary Password: ${tempPassword}
+
+Please login and change your password immediately.
+
+Regards,
+Kickoff Support Team`
+    );
+
+    // ✅ Update request status
     request.status = "approved";
     request.reviewedBy = "Kickoff Support";
     request.reviewedAt = new Date();
@@ -137,9 +180,9 @@ exports.approveOrganizationRequest = async (req, res) => {
     await request.save();
 
     res.status(200).json({
-      message: "Organization request approved",
-      data: request,
+      message: "Organization approved and credentials sent via email",
     });
+
   } catch (error) {
     console.error("APPROVE ERROR:", error);
     res.status(500).json({
@@ -147,6 +190,7 @@ exports.approveOrganizationRequest = async (req, res) => {
     });
   }
 };
+
 
 // ===============================
 // Reject organization request
