@@ -36,6 +36,10 @@ app.use("/api/support", supportAuthRoutes);
 const organizationRequestRoutes = require("./routes/organizationRequestRoutes");
 app.use("/api/organization-requests", organizationRequestRoutes);
 
+// 🔹 Organization Auth routes
+const organizationAuthRoutes = require("./routes/organizationAuthRoutes");
+app.use("/api/org", organizationAuthRoutes);
+
 // 🔹 Test route
 app.get("/", (req, res) => {
   res.send("Kickoff Backend is running");
