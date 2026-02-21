@@ -40,6 +40,10 @@ app.use("/api/organization-requests", organizationRequestRoutes);
 const organizationAuthRoutes = require("./routes/organizationAuthRoutes");
 app.use("/api/org", organizationAuthRoutes);
 
+// 🔹League Routes
+const leagueRoutes = require("./routes/leagueRoutes");
+app.use("/api/leagues", leagueRoutes);
+
 // 🔹 Test route
 app.get("/", (req, res) => {
   res.send("Kickoff Backend is running");

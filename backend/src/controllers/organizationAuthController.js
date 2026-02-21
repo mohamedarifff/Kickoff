@@ -35,10 +35,13 @@ exports.organizationLogin = async (req, res) => {
       });
     }
 
+    // ✅ FIXED HERE
     const token = jwt.sign(
       {
         id: admin._id,
         role: "organization",
+        organizationName: admin.organizationName,
+        email: admin.email,
       },
       process.env.JWT_SECRET,
       { expiresIn: "1d" }

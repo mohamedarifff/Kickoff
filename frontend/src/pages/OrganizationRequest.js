@@ -51,70 +51,96 @@ const OrganizationRequest = () => {
 
   return (
     <div style={styles.page}>
-      <div style={styles.card}>
-        <h2 style={styles.title}>⚽ Register Organization</h2>
-        <p style={styles.subtitle}>
-          Submit your request to create a football league
-        </p>
 
-        {message && <div style={styles.success}>{message}</div>}
-        {error && <div style={styles.error}>{error}</div>}
+      {/* Top Branding */}
+      <div style={styles.topbar}>Kickoff</div>
 
-        <form onSubmit={handleSubmit} style={styles.form}>
-          <input
-            type="text"
-            name="organizationName"
-            placeholder="Organization Name"
-            value={form.organizationName}
-            onChange={handleChange}
-            required
-            style={styles.input}
-          />
+      <div style={styles.layout}>
 
-          <input
-            type="text"
-            name="adminName"
-            placeholder="Admin Name"
-            value={form.adminName}
-            onChange={handleChange}
-            required
-            style={styles.input}
-          />
+        {/* LEFT 40% — Policies */}
+        <div style={styles.leftPane}>
+          <h2 style={styles.leftTitle}>Organization Approval Policy</h2>
 
-          <input
-            type="email"
-            name="adminEmail"
-            placeholder="Admin Email"
-            value={form.adminEmail}
-            onChange={handleChange}
-            required
-            style={styles.input}
-          />
+          <ul style={styles.policyList}>
+            <li>✔ Organization must represent a real football entity</li>
+            <li>✔ Valid administrator email is required</li>
+            <li>✔ Clear purpose of league management</li>
+            <li>✔ No duplicate or spam registrations</li>
+            <li>✔ Approval may take 24–48 hours</li>
+          </ul>
 
-          <select
-            name="organizationType"
-            value={form.organizationType}
-            onChange={handleChange}
-            style={styles.input}
-          >
-            <option value="college">College</option>
-            <option value="club">Club</option>
-            <option value="local">Local</option>
-          </select>
+          <p style={styles.note}>
+            After approval, login credentials will be sent via email.
+          </p>
+        </div>
 
-          <textarea
-            name="purpose"
-            placeholder="Purpose (minimum 10 characters)"
-            value={form.purpose}
-            onChange={handleChange}
-            required
-            style={{ ...styles.input, height: "90px" }}
-          />
+        {/* RIGHT 60% — Form */}
+        <div style={styles.rightPane}>
+          <div style={styles.card}>
+            <h2 style={styles.heading}>Register Organization</h2>
 
-          <button type="submit" style={styles.button} disabled={loading}>
-            {loading ? "Submitting..." : "Submit Request"}
-          </button>
-        </form>
+            {message && <div style={styles.success}>{message}</div>}
+            {error && <div style={styles.error}>{error}</div>}
+
+            <form onSubmit={handleSubmit}>
+              <input
+                type="text"
+                name="organizationName"
+                placeholder="Organization Name"
+                value={form.organizationName}
+                onChange={handleChange}
+                required
+                style={styles.input}
+              />
+
+              <input
+                type="text"
+                name="adminName"
+                placeholder="Admin Name"
+                value={form.adminName}
+                onChange={handleChange}
+                required
+                style={styles.input}
+              />
+
+              <input
+                type="email"
+                name="adminEmail"
+                placeholder="Admin Email"
+                value={form.adminEmail}
+                onChange={handleChange}
+                required
+                style={styles.input}
+              />
+
+              <select
+                name="organizationType"
+                value={form.organizationType}
+                onChange={handleChange}
+                style={styles.input}
+              >
+                <option value="college">College</option>
+                <option value="club">Club</option>
+                <option value="local">Local</option>
+              </select>
+
+              <textarea
+                name="purpose"
+                placeholder="Purpose (minimum 10 characters)"
+                value={form.purpose}
+                onChange={handleChange}
+                required
+                style={{ ...styles.input, height: "90px" }}
+              />
+
+              <button type="submit" style={styles.button} disabled={loading}>
+                {loading ? "Submitting..." : "Submit Request"}
+              </button>
+            </form>
+
+          </div>
+        </div>
+
       </div>
     </div>
   );
@@ -123,65 +149,102 @@ const OrganizationRequest = () => {
 const styles = {
   page: {
     minHeight: "100vh",
+    background: "#FBF6E9",
+    fontFamily: "Poppins, sans-serif",
+  },
+
+  topbar: {
+    height: "70px",
+    background: "#111827",
+    color: "white",
     display: "flex",
-    justifyContent: "center",
     alignItems: "center",
-    background: "#f1f5f9",
-    fontFamily: "Segoe UI, sans-serif",
+    paddingLeft: "40px",
+    fontSize: "22px",
+    fontWeight: "600",
   },
-  card: {
-    width: "420px",
-    padding: "30px",
-    borderRadius: "12px",
-    background: "#ffffff",
-    boxShadow: "0px 10px 25px rgba(0,0,0,0.08)",
+
+  layout: {
+    display: "flex",
+    paddingTop: "40px",   // ✅ prevents overlap
+    paddingBottom: "60px",
   },
-  title: {
-    textAlign: "center",
-    marginBottom: "5px",
+
+  leftPane: {
+    width: "40%",
+    padding: "60px 70px",
   },
-  subtitle: {
-    textAlign: "center",
-    fontSize: "14px",
-    color: "#64748b",
+
+  leftTitle: {
+    fontSize: "26px",
     marginBottom: "20px",
   },
-  form: {
-    display: "flex",
-    flexDirection: "column",
+
+  policyList: {
+    lineHeight: "1.9",
+    paddingLeft: "18px",
+    marginBottom: "20px",
   },
-  input: {
-    marginBottom: "14px",
-    padding: "10px",
-    borderRadius: "6px",
-    border: "1px solid #cbd5e1",
+
+  note: {
+    marginTop: "20px",
     fontSize: "14px",
-    outline: "none",
   },
-  button: {
+
+  rightPane: {
+    width: "60%",
+    display: "flex",
+    justifyContent: "center",
+  },
+
+  card: {
+    width: "80%",        // ✅ better alignment
+    maxWidth: "520px",
+    background: "white",
+    padding: "40px",
+    borderRadius: "16px",
+    boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+  },
+
+  heading: {
+    marginBottom: "25px",
+  },
+
+  input: {
+    width: "100%",
+    boxSizing: "border-box",   // ✅ fixes width alignment
     padding: "12px",
-    borderRadius: "6px",
+    marginBottom: "15px",
+    borderRadius: "8px",
+    border: "1px solid #ccc",
+  },
+
+  button: {
+    width: "100%",
+    boxSizing: "border-box",   // ✅ ensures equal width
+    padding: "14px",
     border: "none",
-    background: "#2563eb",
+    borderRadius: "8px",
+    background: "#111827",
     color: "white",
-    fontWeight: "bold",
+    fontWeight: "600",
     cursor: "pointer",
   },
+
   success: {
     background: "#dcfce7",
     color: "#166534",
     padding: "10px",
-    borderRadius: "6px",
+    borderRadius: "8px",
     marginBottom: "15px",
-    fontSize: "14px",
   },
+
   error: {
     background: "#fee2e2",
     color: "#991b1b",
     padding: "10px",
-    borderRadius: "6px",
+    borderRadius: "8px",
     marginBottom: "15px",
-    fontSize: "14px",
   },
 };
 

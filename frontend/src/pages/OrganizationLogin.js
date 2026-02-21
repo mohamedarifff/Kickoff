@@ -6,11 +6,15 @@ const OrganizationLogin = ({ setOrgLoggedIn }) => {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (loading) return;
+
+    setLoading(true);
     setError("");
 
     try {
@@ -30,77 +34,163 @@ const OrganizationLogin = ({ setOrgLoggedIn }) => {
 
     } catch (err) {
       setError(err.response?.data?.message || "Login failed");
+    } finally {
+      setLoading(false);
     }
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
-        <h2>Organization Admin Login</h2>
+    <div style={styles.page}>
+      
+      {/* Top Branding Bar */}
+      <div style={styles.topbar}>Kickoff</div>
 
-        {error && <p style={styles.error}>{error}</p>}
+      <div style={styles.layout}>
 
-        <form onSubmit={handleSubmit}>
-          <input
-            type="email"
-            placeholder="Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={styles.input}
-          />
+        {/* LEFT 40% */}
+        <div style={styles.leftPane}>
+          <h2 style={styles.leftTitle}>
+            Organization Portal
+          </h2>
+          <p style={styles.leftDesc}>
+            Access your dashboard to manage leagues, teams,
+            fixtures and real-time match updates.
+          </p>
+        </div>
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={styles.input}
-          />
+        {/* RIGHT 60% */}
+        <div style={styles.rightPane}>
+          <div style={styles.card}>
+            
+            <h2 style={styles.heading}>
+              Organization Admin Login
+            </h2>
 
-          <button type="submit" style={styles.button}>
-            Login
-          </button>
-        </form>
+            {error && <p style={styles.error}>{error}</p>}
+
+            <form onSubmit={handleSubmit}>
+              <input
+                type="email"
+                placeholder="Email Address"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                style={styles.input}
+              />
+
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                style={styles.input}
+              />
+
+              <button
+                type="submit"
+                disabled={loading}
+                style={{
+                  ...styles.button,
+                  opacity: loading ? 0.7 : 1,
+                  cursor: loading ? "not-allowed" : "pointer"
+                }}
+              >
+                {loading ? "Signing in..." : "Login"}
+              </button>
+            </form>
+
+          </div>
+        </div>
+
       </div>
     </div>
   );
 };
 
 const styles = {
-  container: {
-    height: "100vh",
+  page: {
+    minHeight: "100vh",
+    background: "#FBF6E9",
+    fontFamily: "Poppins, sans-serif",
+  },
+
+  topbar: {
+    height: "70px",
+    background: "#111827",
+    color: "white",
     display: "flex",
-    justifyContent: "center",
     alignItems: "center",
-    background: "#f1f5f9",
+    paddingLeft: "40px",
+    fontSize: "22px",
+    fontWeight: "600",
   },
+
+  layout: {
+    display: "flex",
+    height: "calc(100vh - 70px)",
+  },
+
+  leftPane: {
+    width: "40%",
+    padding: "70px",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+  },
+
+  leftTitle: {
+    fontSize: "32px",
+    marginBottom: "15px",
+  },
+
+  leftDesc: {
+    fontSize: "16px",
+    lineHeight: "1.6",
+  },
+
+  rightPane: {
+    width: "60%",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+  },
+
   card: {
-    width: "350px",
-    padding: "30px",
+    width: "70%",
     background: "white",
-    borderRadius: "10px",
-    boxShadow: "0 10px 25px rgba(0,0,0,0.1)",
+    padding: "45px",
+    borderRadius: "16px",
+    boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
   },
+
+  heading: {
+    marginBottom: "25px",
+  },
+
   input: {
     width: "100%",
-    padding: "10px",
+    boxSizing: "border-box",
+    padding: "12px",
     marginBottom: "15px",
-    borderRadius: "6px",
+    borderRadius: "8px",
     border: "1px solid #ccc",
   },
+
   button: {
     width: "100%",
-    padding: "10px",
+    boxSizing: "border-box",
+    padding: "14px",
     border: "none",
-    borderRadius: "6px",
-    background: "#2563eb",
+    borderRadius: "8px",
+    background: "#111827",
     color: "white",
+    fontWeight: "600",
   },
+
   error: {
     color: "red",
-    marginBottom: "10px",
+    marginBottom: "15px",
   },
 };
 

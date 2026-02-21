@@ -10,8 +10,9 @@ import OrganizationRequest from "./pages/OrganizationRequest";
 
 import SupportLogin from "./pages/SupportLogin";
 import SupportDashboard from "./pages/SupportDashboard";
-
+import OrganizationLeagues from "./pages/OrganizationLeagues";
 import OrganizationLogin from "./pages/OrganizationLogin";
+import OrganizationCreateLeague from "./pages/OrganizationCreateLeague";
 import ChangePassword from "./pages/ChangePassword";
 import OrganizationDashboard from "./pages/OrganizationDashboard";
 
@@ -76,6 +77,12 @@ function App() {
               <Navigate to="/org/login" />
             )
           }
+        />
+        <Route path="/org/leagues" element={<OrganizationLeagues />} />
+
+        <Route
+        path="/org/leagues/create"
+        element={<OrganizationCreateLeague />}
         />
 
       </Routes>

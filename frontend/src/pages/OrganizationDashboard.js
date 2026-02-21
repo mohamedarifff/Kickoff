@@ -1,13 +1,28 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 
 const OrganizationDashboard = () => {
   const navigate = useNavigate();
+  const [orgData, setOrgData] = useState(null);
 
   useEffect(() => {
     const token = localStorage.getItem("orgToken");
 
     if (!token) {
+      navigate("/org/login");
+      return;
+    }
+
+    try {
+      const decoded = JSON.parse(atob(token.split(".")[1]));
+
+      if (decoded.role !== "organization") {
+        navigate("/org/login");
+        return;
+      }
+
+      setOrgData(decoded);
+    } catch {
       navigate("/org/login");
     }
   }, [navigate]);
@@ -17,26 +32,65 @@ const OrganizationDashboard = () => {
     navigate("/org/login");
   };
 
+  if (!orgData) return null;
+
   return (
     <div style={styles.page}>
-      <div style={styles.header}>
-        <h2>🏢 Organization Dashboard</h2>
+      {/* Top Branding Bar */}
+      <div style={styles.topbar}>
+        <span>Kickoff</span>
         <button style={styles.logoutBtn} onClick={handleLogout}>
           Logout
         </button>
       </div>
 
-      <div style={styles.card}>
-        <h3>Welcome to Kickoff</h3>
-        <p>Your organization has been successfully approved.</p>
+      <div style={styles.layout}>
+        {/* LEFT 40% — Organization Info */}
+        <div style={styles.leftPane}>
+          <h2 style={styles.leftTitle}>
+            {orgData.organizationName}
+          </h2>
 
-        <div style={styles.infoBox}>
-          <p><strong>Status:</strong> Active</p>
-          <p><strong>Access Level:</strong> Organization Admin</p>
+          <div style={styles.infoCard}>
+            <p><strong>Email:</strong> {orgData.email}</p>
+            <p><strong>Status:</strong> Approved</p>
+            <p><strong>Role:</strong> Organization Admin</p>
+          </div>
+
+          <p style={styles.description}>
+            Manage leagues, teams, fixtures and real-time statistics
+            from this dashboard.
+          </p>
         </div>
 
-        <div style={styles.comingSoon}>
-          🚀 League creation module coming next...
+        {/* RIGHT 60% — Widgets */}
+        <div style={styles.rightPane}>
+          <h2 style={styles.sectionHeading}>Dashboard Modules</h2>
+
+          <div style={styles.widgetGrid}>
+            <div
+              style={styles.widget}
+              onClick={() => navigate("/org/leagues")}
+            >
+              ⚽
+              <span style={styles.widgetTitle}>Leagues</span>
+            </div>
+
+            <div style={styles.widget}>
+              👥
+              <span style={styles.widgetTitle}>Teams</span>
+            </div>
+
+            <div style={styles.widget}>
+              📊
+              <span style={styles.widgetTitle}>Statistics</span>
+            </div>
+
+            <div style={styles.widget}>
+              🏟
+              <span style={styles.widgetTitle}>Matches</span>
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -46,44 +100,94 @@ const OrganizationDashboard = () => {
 const styles = {
   page: {
     minHeight: "100vh",
-    background: "#0f172a",
-    padding: "30px",
-    fontFamily: "Segoe UI, sans-serif",
-    color: "white",
+    background: "#FBF6E9",
+    fontFamily: "Poppins, sans-serif",
   },
-  header: {
+
+  topbar: {
+    height: "70px",
+    background: "#111827",
+    color: "white",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    marginBottom: "30px",
+    padding: "0 40px",
+    fontSize: "20px",
+    fontWeight: "600",
   },
+
   logoutBtn: {
     background: "#ef4444",
     border: "none",
-    padding: "10px 15px",
-    borderRadius: "8px",
+    padding: "8px 14px",
+    borderRadius: "6px",
     color: "white",
     cursor: "pointer",
   },
-  card: {
+
+  layout: {
+    display: "flex",
+    paddingTop: "40px",
+    paddingBottom: "60px",
+  },
+
+  leftPane: {
+    width: "40%",
+    padding: "0 70px",
+  },
+
+  leftTitle: {
+    fontSize: "28px",
+    marginBottom: "20px",
+  },
+
+  infoCard: {
     background: "white",
-    color: "#1e293b",
+    padding: "20px",
+    borderRadius: "12px",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.06)",
+    marginBottom: "20px",
+  },
+
+  description: {
+    fontSize: "14px",
+    lineHeight: "1.6",
+  },
+
+  rightPane: {
+    width: "60%",
+    paddingRight: "60px",
+  },
+
+  sectionHeading: {
+    marginBottom: "25px",
+  },
+
+  widgetGrid: {
+    display: "grid",
+    gridTemplateColumns: "repeat(auto-fill, minmax(180px, 1fr))",
+    gap: "25px",
+  },
+
+  widget: {
+    background: "white",
+    height: "160px",
     borderRadius: "16px",
-    padding: "30px",
-    boxShadow: "0px 10px 30px rgba(0,0,0,0.25)",
+    display: "flex",
+    flexDirection: "column",
+    justifyContent: "center",
+    alignItems: "center",
+    fontSize: "40px",
+    cursor: "pointer",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.08)",
+    transition: "0.2s",
   },
-  infoBox: {
-    marginTop: "15px",
-    padding: "15px",
-    background: "#f1f5f9",
-    borderRadius: "10px",
-  },
-  comingSoon: {
-    marginTop: "25px",
-    padding: "15px",
-    background: "#e0f2fe",
-    borderRadius: "10px",
-    fontWeight: "bold",
+
+  widgetTitle: {
+    fontSize: "16px",
+    marginTop: "10px",
+    color: "#111827",
+    fontWeight: "500",
   },
 };
 
