@@ -13,8 +13,22 @@ import SupportDashboard from "./pages/SupportDashboard";
 import OrganizationLeagues from "./pages/OrganizationLeagues";
 import OrganizationLogin from "./pages/OrganizationLogin";
 import OrganizationCreateLeague from "./pages/OrganizationCreateLeague";
+import OrganizationManageLeague from "./pages/OrganizationManageLeague";
+
+import LeagueTeams from "./pages/LeagueTeams";
+import LeagueCreateTeam from "./pages/LeagueCreateTeam";
+import LeagueManageTeam from "./pages/LeagueManageTeam";
+
+import LeagueFixtures from "./pages/LeagueFixtures";  
+import LeagueStandings from "./pages/LeagueStandings";
+import LeagueSettings from "./pages/LeagueSettings";
 import ChangePassword from "./pages/ChangePassword";
 import OrganizationDashboard from "./pages/OrganizationDashboard";
+
+import PublicLeagues from "./pages/PublicLeagues";
+import UserLeaguePage from "./pages/UserLeaguePage";
+import UserHome from "./pages/UserHome";
+
 
 function App() {
   // Support login state
@@ -32,7 +46,10 @@ function App() {
       <Routes>
 
         {/* ================= PUBLIC ================= */}
-        <Route path="/" element={<OrganizationRequest />} />
+        <Route path="/" element={<UserHome />} />
+        <Route path="/leagues" element={<PublicLeagues />} />
+        <Route path="/league/:leagueId" element={<UserLeaguePage />} />
+        <Route path="/request-organization" element={<OrganizationRequest />} />
 
         {/* ================= SUPPORT ================= */}
         <Route
@@ -84,6 +101,23 @@ function App() {
         path="/org/leagues/create"
         element={<OrganizationCreateLeague />}
         />
+
+        <Route
+        path="/org/leagues/:leagueId"
+        element={<OrganizationManageLeague />}
+        />
+        
+        <Route path="/org/leagues/:leagueId/teams" element={<LeagueTeams />} />
+        <Route path="/org/leagues/:leagueId/fixtures" element={<LeagueFixtures />} />
+        <Route path="/org/leagues/:leagueId/standings" element={<LeagueStandings />} />
+        <Route path="/org/leagues/:leagueId/settings" element={<LeagueSettings />} />
+
+        <Route path="/org/leagues/:leagueId/teams/create" element={<LeagueCreateTeam />}/>
+        <Route path="/org/leagues/:leagueId/teams/:teamId" element={<LeagueManageTeam />}/>
+
+        <Route path="/org/leagues/:leagueId/fixtures"element={<LeagueFixtures />}/>
+
+        
 
       </Routes>
     </Router>

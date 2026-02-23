@@ -44,10 +44,21 @@ app.use("/api/org", organizationAuthRoutes);
 const leagueRoutes = require("./routes/leagueRoutes");
 app.use("/api/leagues", leagueRoutes);
 
+// 🔹Team Routes
+const teamRoutes = require("./routes/teamRoutes");
+app.use("/api/teams", teamRoutes);
+
+// 🔹 Match Routes
+const matchRoutes = require("./routes/matchRoutes");
+app.use("/api/matches", matchRoutes); 
+
 // 🔹 Test route
 app.get("/", (req, res) => {
   res.send("Kickoff Backend is running");
 });
+
+const publicRoutes = require("./routes/publicRoutes");
+app.use("/api/public", publicRoutes);
 
 // start server
 app.listen(PORT, () => {

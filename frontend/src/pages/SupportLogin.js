@@ -22,103 +22,172 @@ const SupportLogin = ({ setIsLoggedIn }) => {
         }
       );
 
-      // Store token
       localStorage.setItem("supportToken", res.data.token);
-
-      // Update login state
       setIsLoggedIn(true);
-
-      // Redirect to dashboard
       navigate("/support/dashboard");
 
     } catch (err) {
-      console.log("LOGIN ERROR:", err.response?.data || err.message);
       setError(err.response?.data?.message || "Login failed");
     }
   };
 
   return (
     <div style={styles.page}>
-      <div style={styles.card}>
-        <h2 style={styles.title}>⚽ Kickoff Support</h2>
-        <p style={styles.subtitle}>Admin Access Portal</p>
+      {/* Branding Bar */}
+      <div style={styles.topbar}>
+        <div style={styles.brand} onClick={() => navigate("/")}>
+          Kickoff Support
+        </div>
+      </div>
 
-        {error && <p style={styles.error}>{error}</p>}
+      <div style={styles.layout}>
+        {/* LEFT 40% */}
+        <div style={styles.leftPane}>
+          <h1 style={styles.leftTitle}>Kickoff Support</h1>
 
-        <form onSubmit={handleSubmit}>
-          <input
-            type="email"
-            placeholder="Support Email"
-            value={email}
-            onChange={(e) => setEmail(e.target.value)}
-            required
-            style={styles.input}
-          />
+          <p style={styles.leftText}>
+            The Support Panel allows administrators to manage
+            organization approvals, monitor leagues, and ensure
+            tournaments run smoothly across the platform.
+          </p>
 
-          <input
-            type="password"
-            placeholder="Password"
-            value={password}
-            onChange={(e) => setPassword(e.target.value)}
-            required
-            style={styles.input}
-          />
+          <p style={styles.leftText}>
+            Secure access ensures only authorized personnel
+            can control system-level operations.
+          </p>
 
-          <button type="submit" style={styles.button}>
-            Login to Dashboard
-          </button>
-        </form>
+        </div>
+
+        {/* RIGHT 60% */}
+        <div style={styles.rightPane}>
+          <div style={styles.card}>
+            <h2 style={styles.title}>Admin Login</h2>
+
+            {error && <div style={styles.error}>{error}</div>}
+
+            <form onSubmit={handleSubmit}>
+              <input
+                type="email"
+                placeholder="Support Email"
+                value={email}
+                onChange={(e) => setEmail(e.target.value)}
+                required
+                style={styles.input}
+              />
+
+              <input
+                type="password"
+                placeholder="Password"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                style={styles.input}
+              />
+
+              <button type="submit" style={styles.button}>
+                Login Support
+              </button>
+            </form>
+          </div>
+        </div>
       </div>
     </div>
   );
 };
 
+/* ---------------- Styles ---------------- */
+
 const styles = {
   page: {
-    height: "100vh",
+    minHeight: "100vh",
+    background: "#7AAACE",
+    fontFamily: "Poppins, sans-serif",
+  },
+
+  topbar: {
+    height: "70px",
+    background: "#355872",
+    display: "flex",
+    alignItems: "center",
+    paddingLeft: "40px",
+    color: "white",
+  },
+
+  brand: {
+    fontSize: "22px",
+    fontWeight: "600",
+    cursor: "pointer",
+  },
+
+  layout: {
+    display: "flex",
+    height: "calc(100vh - 70px)",
+  },
+
+  /* LEFT 40% */
+  leftPane: {
+    width: "40%",
+    padding: "80px 60px",
+    color: "#1e293b",
+  },
+
+  leftTitle: {
+    fontSize: "32px",
+    marginBottom: "25px",
+    color: "#355872",
+  },
+
+  leftText: {
+    fontSize: "15px",
+    lineHeight: "1.8",
+    marginBottom: "20px",
+  },
+
+  /* RIGHT 60% */
+  rightPane: {
+    width: "60%",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    background: "linear-gradient(135deg, #0f172a, #1e293b)",
-    fontFamily: "Segoe UI, sans-serif",
   },
+
   card: {
-    width: "380px",
-    padding: "35px",
+    width: "420px",
+    background: "white",
+    padding: "40px",
     borderRadius: "16px",
-    background: "#ffffff",
-    boxShadow: "0px 15px 40px rgba(0,0,0,0.25)",
+    boxShadow: "0 15px 40px rgba(0,0,0,0.15)",
   },
+
   title: {
     textAlign: "center",
-    marginBottom: "5px",
+    marginBottom: "25px",
+    color: "#355872",
   },
-  subtitle: {
-    textAlign: "center",
-    marginBottom: "20px",
-    color: "#64748b",
-    fontSize: "14px",
-  },
+
   input: {
     width: "100%",
     padding: "12px",
-    marginBottom: "14px",
+    boxSizing: "border-box",
+    marginBottom: "15px",
     borderRadius: "8px",
     border: "1px solid #cbd5e1",
     fontSize: "14px",
     outline: "none",
   },
+
   button: {
     width: "100%",
     padding: "12px",
     borderRadius: "8px",
     border: "none",
-    background: "linear-gradient(90deg, #2563eb, #1d4ed8)",
+    background: "#355872",
     color: "white",
-    fontWeight: "bold",
+    fontWeight: "600",
     fontSize: "15px",
     cursor: "pointer",
   },
+
   error: {
     background: "#fee2e2",
     color: "#b91c1c",

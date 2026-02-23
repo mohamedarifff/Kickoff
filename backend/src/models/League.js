@@ -22,8 +22,19 @@ const leagueSchema = new mongoose.Schema(
 
     format: {
       type: String,
-      enum: ["round-robin", "knockout", "hybrid"],
-      default: "round-robin",
+      enum: ["round_robin", "knockout", "group_knockout"],
+      default: "round_robin",
+    },
+
+    roundRobinType: {
+      type: String,
+      enum: ["single", "double"],
+      default: "single",
+    },
+
+    groups: {
+      type: Number,
+      default: 0,
     },
 
     numberOfTeams: {
@@ -34,7 +45,7 @@ const leagueSchema = new mongoose.Schema(
 
     status: {
       type: String,
-      enum: ["draft", "ongoing", "completed"],
+      enum: ["draft", "fixtures_generated", "ongoing", "completed"],
       default: "draft",
     },
 

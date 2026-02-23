@@ -14,6 +14,15 @@ const SupportDashboard = () => {
   const [rejectionReason, setRejectionReason] = useState("");
   const [selectedRejectId, setSelectedRejectId] = useState(null);
 
+  /* 🔥 Force full page background */
+  useEffect(() => {
+    document.body.style.backgroundColor = "#7AAACE";
+    document.body.style.margin = "0";
+    return () => {
+      document.body.style.backgroundColor = "";
+    };
+  }, []);
+
   const loadRequests = useCallback(async () => {
     setLoading(true);
     try {
@@ -51,7 +60,7 @@ const SupportDashboard = () => {
 
     try {
       await rejectRequest(id, rejectionReason);
-      setMessage("Organization rejected and email sent.");
+      setMessage("Organization rejected successfully.");
       setRejectionReason("");
       setSelectedRejectId(null);
       loadRequests();
@@ -71,129 +80,126 @@ const SupportDashboard = () => {
     loadRequests();
   }, [loadRequests]);
 
-  if (loading)
+  if (loading) {
     return (
-      <div style={styles.loadingPage}>
+      <div style={styles.page}>
         <div style={styles.loaderCard}>Loading requests...</div>
       </div>
     );
+  }
 
   return (
     <div style={styles.page}>
-      {/* Header */}
-      <div style={styles.header}>
-        <h2>⚽ Kickoff Support Dashboard</h2>
+      {/* Top Branding Bar */}
+      <div style={styles.topbar}>
+        <div style={styles.brand}>Kickoff Support</div>
         <button style={styles.logoutBtn} onClick={handleLogout}>
           Logout
         </button>
       </div>
 
-      {/* Message */}
-      {message && <div style={styles.successMsg}>{message}</div>}
+      <div style={styles.container}>
+        {message && <div style={styles.successMsg}>{message}</div>}
 
-      {/* Tabs */}
-      <div style={styles.tabs}>
-        {["pending", "approved", "rejected"].map((s) => (
-          <button
-            key={s}
-            onClick={() => setStatus(s)}
-            style={{
-              ...styles.tabBtn,
-              ...(status === s ? styles.activeTab : {}),
-            }}
-          >
-            {s.toUpperCase()}
-          </button>
-        ))}
-      </div>
+        {/* Tabs */}
+        <div style={styles.tabs}>
+          {["pending", "approved", "rejected"].map((s) => (
+            <button
+              key={s}
+              onClick={() => setStatus(s)}
+              style={{
+                ...styles.tabBtn,
+                ...(status === s ? styles.activeTab : {}),
+              }}
+            >
+              {s.toUpperCase()}
+            </button>
+          ))}
+        </div>
 
-      {/* Table */}
-      <div style={styles.card}>
-        {requests.length === 0 ? (
-          <p style={{ textAlign: "center" }}>No {status} requests</p>
-        ) : (
-          <table style={styles.table}>
-            <thead>
-              <tr>
-                <th>Organization</th>
-                <th>Admin</th>
-                <th>Email</th>
-                <th>Type</th>
-                <th>Status</th>
-                {status === "rejected" && <th>Reason</th>}
-                {status === "pending" && <th>Actions</th>}
-              </tr>
-            </thead>
-            <tbody>
+        {/* Requests */}
+        <div style={styles.card}>
+          {requests.length === 0 ? (
+            <p style={styles.empty}>No {status} requests</p>
+          ) : (
+            <div style={styles.requestList}>
               {requests.map((req) => (
-                <tr key={req._id}>
-                  <td>{req.organizationName}</td>
-                  <td>{req.adminName}</td>
-                  <td>{req.adminEmail}</td>
-                  <td>{req.organizationType}</td>
-                  <td>
+                <div key={req._id} style={styles.requestCard}>
+                  <div style={styles.requestInfo}>
+                    <h3 style={styles.orgName}>
+                      {req.organizationName}
+                    </h3>
+                    <p style={styles.meta}><strong>Admin:</strong> {req.adminName}</p>
+                    <p style={styles.meta}><strong>Email:</strong> {req.adminEmail}</p>
+                    <p style={styles.meta}><strong>Type:</strong> {req.organizationType}</p>
+
+                    {status === "rejected" && (
+                      <p style={styles.rejectReason}>
+                        <strong>Reason:</strong> {req.rejectionReason || "-"}
+                      </p>
+                    )}
+                  </div>
+
+                  <div style={styles.actionSection}>
                     <span style={badgeStyle(req.status)}>
-                      {req.status}
+                      {req.status.toUpperCase()}
                     </span>
-                  </td>
 
-                  {status === "rejected" && (
-                    <td>{req.rejectionReason || "-"}</td>
-                  )}
+                    {status === "pending" && (
+                      <div style={styles.actionButtons}>
+                        <button
+                          style={styles.approveBtn}
+                          disabled={actionLoading === req._id}
+                          onClick={() => handleApprove(req._id)}
+                        >
+                          {actionLoading === req._id
+                            ? "Processing..."
+                            : "Approve"}
+                        </button>
 
-                  {status === "pending" && (
-                    <td>
-                      <button
-                        style={styles.approveBtn}
-                        disabled={actionLoading === req._id}
-                        onClick={() => handleApprove(req._id)}
-                      >
-                        {actionLoading === req._id
-                          ? "Processing..."
-                          : "Approve"}
-                      </button>
+                        <button
+                          style={styles.rejectBtn}
+                          onClick={() =>
+                            setSelectedRejectId(req._id)
+                          }
+                        >
+                          Reject
+                        </button>
+                      </div>
+                    )}
 
-                      <button
-                        style={styles.rejectBtn}
-                        onClick={() =>
-                          setSelectedRejectId(req._id)
-                        }
-                      >
-                        Reject
-                      </button>
-
-                      {selectedRejectId === req._id && (
-                        <div style={styles.rejectBox}>
-                          <textarea
-                            placeholder="Enter rejection reason..."
-                            value={rejectionReason}
-                            onChange={(e) =>
-                              setRejectionReason(e.target.value)
-                            }
-                            style={styles.textarea}
-                          />
-                          <button
-                            style={styles.confirmRejectBtn}
-                            onClick={() =>
-                              handleReject(req._id)
-                            }
-                          >
-                            Confirm Reject
-                          </button>
-                        </div>
-                      )}
-                    </td>
-                  )}
-                </tr>
+                    {selectedRejectId === req._id && (
+                      <div style={styles.rejectBox}>
+                        <textarea
+                          placeholder="Enter rejection reason..."
+                          value={rejectionReason}
+                          onChange={(e) =>
+                            setRejectionReason(e.target.value)
+                          }
+                          style={styles.textarea}
+                        />
+                        <button
+                          style={styles.confirmRejectBtn}
+                          onClick={() =>
+                            handleReject(req._id)
+                          }
+                        >
+                          Confirm Reject
+                        </button>
+                      </div>
+                    )}
+                  </div>
+                </div>
               ))}
-            </tbody>
-          </table>
-        )}
+            </div>
+          )}
+        </div>
       </div>
     </div>
   );
 };
 
+/* Badge */
 const badgeStyle = (status) => {
   const colors = {
     pending: "#facc15",
@@ -201,117 +207,196 @@ const badgeStyle = (status) => {
     rejected: "#ef4444",
   };
   return {
-    padding: "5px 10px",
+    padding: "6px 12px",
     borderRadius: "20px",
     fontSize: "12px",
     background: colors[status],
-    fontWeight: "bold",
+    fontWeight: "600",
   };
 };
 
+/* Styles */
 const styles = {
   page: {
     minHeight: "100vh",
-    background: "#0f172a",
-    padding: "30px",
-    fontFamily: "Segoe UI, sans-serif",
+    background: "#7AAACE",
+    display: "flex",
+    flexDirection: "column",
+    paddingBottom: "40px",   // 🔥 prevents bottom beige
+    fontFamily: "Poppins, sans-serif",
   },
-  header: {
+
+  topbar: {
+    height: "70px",
+    background: "#355872",
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
+    padding: "0 40px",
     color: "white",
-    marginBottom: "20px",
   },
+
+  brand: {
+    fontSize: "20px",
+    fontWeight: "600",
+  },
+
   logoutBtn: {
-    background: "#ef4444",
+    background: "white",
     border: "none",
-    padding: "10px 15px",
+    padding: "8px 14px",
     borderRadius: "8px",
-    color: "white",
+    color: "#355872",
+    fontWeight: "600",
     cursor: "pointer",
   },
+
+  container: {
+    maxWidth: "1100px",
+    margin: "40px auto",
+    padding: "0 20px",
+    width: "100%",
+  },
+
   successMsg: {
     background: "#dcfce7",
     color: "#166534",
-    padding: "10px",
-    borderRadius: "6px",
-    marginBottom: "15px",
-  },
-  tabs: {
+    padding: "12px",
+    borderRadius: "8px",
     marginBottom: "20px",
   },
+
+  tabs: {
+    marginBottom: "25px",
+  },
+
   tabBtn: {
     padding: "10px 18px",
     marginRight: "10px",
     borderRadius: "8px",
     border: "none",
     cursor: "pointer",
-    background: "#1e293b",
+    background: "#e2e8f0",
+    color: "#355872",
+    fontWeight: "500",
+  },
+
+  activeTab: {
+    background: "#355872",
     color: "white",
   },
-  activeTab: {
-    background: "#2563eb",
-  },
+
   card: {
     background: "white",
     borderRadius: "16px",
+    padding: "30px",
+    boxShadow: "0 10px 30px rgba(0,0,0,0.15)",
+  },
+
+  empty: {
+    textAlign: "center",
     padding: "20px",
-    boxShadow: "0px 10px 30px rgba(0,0,0,0.25)",
   },
-  table: {
-    width: "100%",
-    borderCollapse: "collapse",
+
+  requestList: {
+    display: "flex",
+    flexDirection: "column",
+    gap: "20px",
   },
+
+  requestCard: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "flex-start",
+    padding: "20px",
+    borderRadius: "14px",
+    background: "#f8fafc",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.08)",
+  },
+
+  requestInfo: {
+    flex: 1,
+  },
+
+  orgName: {
+    margin: "0 0 10px 0",
+    color: "#355872",
+  },
+
+  meta: {
+    margin: "4px 0",
+    fontSize: "14px",
+    color: "#334155",
+  },
+
+  rejectReason: {
+    marginTop: "8px",
+    color: "#b91c1c",
+    fontSize: "14px",
+  },
+
+  actionSection: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "flex-end",
+    gap: "12px",
+  },
+
+  actionButtons: {
+    display: "flex",
+    gap: "10px",
+  },
+
   approveBtn: {
     background: "#22c55e",
     border: "none",
-    padding: "8px 12px",
-    marginRight: "8px",
+    padding: "8px 14px",
     borderRadius: "6px",
     color: "white",
     cursor: "pointer",
   },
+
   rejectBtn: {
     background: "#ef4444",
     border: "none",
-    padding: "8px 12px",
+    padding: "8px 14px",
     borderRadius: "6px",
     color: "white",
     cursor: "pointer",
   },
+
   rejectBox: {
     marginTop: "10px",
-    display: "flex",
-    flexDirection: "column",
+    background: "white",
+    padding: "12px",
+    borderRadius: "10px",
+    boxShadow: "0 4px 10px rgba(0,0,0,0.1)",
   },
+
   textarea: {
+    width: "100%",
     padding: "8px",
     marginBottom: "8px",
     borderRadius: "6px",
     border: "1px solid #cbd5e1",
   },
+
   confirmRejectBtn: {
     background: "#991b1b",
     border: "none",
-    padding: "8px",
+    padding: "8px 12px",
     borderRadius: "6px",
     color: "white",
     cursor: "pointer",
   },
-  loadingPage: {
-    height: "100vh",
-    display: "flex",
-    justifyContent: "center",
-    alignItems: "center",
-    background: "#0f172a",
-  },
+
   loaderCard: {
+    margin: "auto",
     background: "white",
     padding: "30px",
     borderRadius: "12px",
     fontSize: "18px",
-    boxShadow: "0px 10px 25px rgba(0,0,0,0.3)",
+    boxShadow: "0 10px 25px rgba(0,0,0,0.2)",
   },
 };
 
