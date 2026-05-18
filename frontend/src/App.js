@@ -5,8 +5,6 @@ import {
   Navigate,
 } from "react-router-dom";
 
-import { useEffect, useState } from "react";
-
 /* ================= PUBLIC ================= */
 
 import UserHome from "./pages/UserHome";
@@ -79,32 +77,6 @@ const ProtectedSupportRoute = ({
 
 function App() {
 
-  const [
-    supportLoggedIn,
-    setSupportLoggedIn,
-  ] = useState(false);
-
-  const [
-    orgLoggedIn,
-    setOrgLoggedIn,
-  ] = useState(false);
-
-  useEffect(() => {
-
-    setSupportLoggedIn(
-      !!localStorage.getItem(
-        "supportToken"
-      )
-    );
-
-    setOrgLoggedIn(
-      !!localStorage.getItem(
-        "orgToken"
-      )
-    );
-
-  }, []);
-
   return (
 
     <Router>
@@ -125,10 +97,10 @@ function App() {
           element={<PublicLeagues />}
         />
 
-<Route
-  path="/league/:leagueId"
-  element={<PublicLeague />}
-/>
+        <Route
+          path="/league/:leagueId"
+          element={<PublicLeague />}
+        />
 
         <Route
           path="/request-organization"
@@ -142,11 +114,7 @@ function App() {
         <Route
           path="/support/login"
           element={
-            <SupportLogin
-              setIsLoggedIn={
-                setSupportLoggedIn
-              }
-            />
+            <SupportLogin />
           }
         />
 
@@ -168,11 +136,7 @@ function App() {
         <Route
           path="/org/login"
           element={
-            <OrganizationLogin
-              setOrgLoggedIn={
-                setOrgLoggedIn
-              }
-            />
+            <OrganizationLogin />
           }
         />
 

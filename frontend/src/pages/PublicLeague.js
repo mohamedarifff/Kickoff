@@ -1175,34 +1175,6 @@ const styles = {
   liveSection: {
     padding: "30px 80px 10px",
   },
-
-  liveHeader: {
-    fontSize: "28px",
-    fontWeight: "700",
-    marginBottom: "22px",
-  },
-
-  liveGrid: {
-    display: "grid",
-    gridTemplateColumns:
-      "repeat(auto-fit, minmax(320px, 1fr))",
-    gap: "22px",
-  },
-
-  liveCard: {
-    background:
-      "linear-gradient(to right, #166534, #15803d)",
-    borderRadius: "24px",
-    padding: "26px",
-    boxShadow:
-      "0 15px 35px rgba(127,29,29,0.35)",
-    position: "relative",
-    overflow: "hidden",
-  },
-
-  liveSection: {
-    padding: "30px 80px 10px",
-  },
   
   liveHeader: {
     fontSize: "30px",
@@ -1279,41 +1251,6 @@ const styles = {
   
   liveScore: {
     fontSize: "48px",
-    fontWeight: "800",
-    minWidth: "120px",
-    textAlign: "center",
-  },
-
-  liveBadge: {
-    position: "absolute",
-    top: "16px",
-    right: "16px",
-    background: "white",
-    color: "#991b1b",
-    padding: "6px 12px",
-    borderRadius: "999px",
-    fontSize: "12px",
-    fontWeight: "700",
-  },
-
-  liveTeams: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent:
-      "space-between",
-    gap: "16px",
-    marginTop: "20px",
-  },
-
-  liveTeam: {
-    flex: 1,
-    fontSize: "18px",
-    fontWeight: "600",
-    textAlign: "center",
-  },
-
-  liveScore: {
-    fontSize: "42px",
     fontWeight: "800",
     minWidth: "120px",
     textAlign: "center",
