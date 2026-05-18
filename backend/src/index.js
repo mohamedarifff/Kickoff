@@ -1,66 +1,158 @@
 const express = require("express");
 const mongoose = require("mongoose");
 const cors = require("cors");
+
 require("dotenv").config();
 
 const app = express();
-const PORT = process.env.PORT || 5000;
 
-// ✅ CORS (must be before routes)
+const PORT =
+  process.env.PORT || 5000;
+
+/* =========================================
+   CORS
+========================================= */
+
 app.use(
   cors({
-    origin: "http://localhost:3000",
+    origin: [
+      "http://localhost:3000",
+
+      "https://kickoff-007.vercel.app",
+
+      "https://kickoff-007-c9cejd8yx-mdariff011-1560s-projects.vercel.app",
+    ],
+
+    credentials: true,
   })
 );
 
-// middleware
+/* =========================================
+   MIDDLEWARE
+========================================= */
+
 app.use(express.json());
 
-// MongoDB connection
+/* =========================================
+   MONGODB CONNECTION
+========================================= */
+
 mongoose
   .connect(process.env.MONGO_URI)
   .then(() => {
-    console.log("MongoDB connected");
+
+    console.log(
+      "MongoDB connected"
+    );
+
   })
   .catch((error) => {
-    console.error("MongoDB connection error:", error);
+
+    console.error(
+      "MongoDB connection error:",
+      error
+    );
+
   });
 
-// ================= ROUTES =================
+/* =========================================
+   ROUTES
+========================================= */
 
-// 🔹 Support authentication routes
-const supportAuthRoutes = require("./routes/supportAuthRoutes");
-app.use("/api/support", supportAuthRoutes);
+/* SUPPORT AUTH */
 
-// 🔹 Organization request routes
-const organizationRequestRoutes = require("./routes/organizationRequestRoutes");
-app.use("/api/organization-requests", organizationRequestRoutes);
+const supportAuthRoutes =
+  require(
+    "./routes/supportAuthRoutes"
+  );
 
-// 🔹 Organization Auth routes
-const organizationAuthRoutes = require("./routes/organizationAuthRoutes");
-app.use("/api/org", organizationAuthRoutes);
+app.use(
+  "/api/support",
+  supportAuthRoutes
+);
 
-// 🔹League Routes
-const leagueRoutes = require("./routes/leagueRoutes");
-app.use("/api/leagues", leagueRoutes);
+/* ORGANIZATION REQUESTS */
 
-// 🔹Team Routes
-const teamRoutes = require("./routes/teamRoutes");
-app.use("/api/teams", teamRoutes);
+const organizationRequestRoutes =
+  require(
+    "./routes/organizationRequestRoutes"
+  );
 
-// 🔹 Match Routes
-const matchRoutes = require("./routes/matchRoutes");
-app.use("/api/matches", matchRoutes); 
+app.use(
+  "/api/organization-requests",
+  organizationRequestRoutes
+);
 
-// 🔹 Test route
+/* ORGANIZATION AUTH */
+
+const organizationAuthRoutes =
+  require(
+    "./routes/organizationAuthRoutes"
+  );
+
+app.use(
+  "/api/org",
+  organizationAuthRoutes
+);
+
+/* LEAGUES */
+
+const leagueRoutes =
+  require("./routes/leagueRoutes");
+
+app.use(
+  "/api/leagues",
+  leagueRoutes
+);
+
+/* TEAMS */
+
+const teamRoutes =
+  require("./routes/teamRoutes");
+
+app.use(
+  "/api/teams",
+  teamRoutes
+);
+
+/* MATCHES */
+
+const matchRoutes =
+  require("./routes/matchRoutes");
+
+app.use(
+  "/api/matches",
+  matchRoutes
+);
+
+/* PUBLIC */
+
+const publicRoutes =
+  require("./routes/publicRoutes");
+
+app.use(
+  "/api/public",
+  publicRoutes
+);
+
+/* TEST ROUTE */
+
 app.get("/", (req, res) => {
-  res.send("Kickoff Backend is running");
+
+  res.send(
+    "Kickoff Backend is running"
+  );
+
 });
 
-const publicRoutes = require("./routes/publicRoutes");
-app.use("/api/public", publicRoutes);
+/* =========================================
+   START SERVER
+========================================= */
 
-// start server
 app.listen(PORT, () => {
-  console.log(`Server running on port ${PORT}`);
+
+  console.log(
+    `Server running on port ${PORT}`
+  );
+
 });
