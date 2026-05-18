@@ -1,90 +1,109 @@
 import { useState } from "react";
-import API from "../utils/api";
-import { useNavigate, Link } from "react-router-dom";
 
-const OrganizationLogin = ({ setOrgLoggedIn }) => {
+import API from "../utils/api";
+
+import {
+  useLocation,
+  useNavigate,
+  Link,
+} from "react-router-dom";
+
+const ResetPassword = () => {
+
+  const location = useLocation();
+  const navigate = useNavigate();
+
+  const defaultEmail =
+    location.state?.email || "";
 
   const [email, setEmail] =
+    useState(defaultEmail);
+
+  const [code, setCode] =
     useState("");
 
-  const [password, setPassword] =
+  const [newPassword, setNewPassword] =
     useState("");
 
-  const [error, setError] =
-    useState("");
+  const [confirmPassword,
+    setConfirmPassword] = useState("");
 
   const [loading, setLoading] =
     useState(false);
 
-  const navigate =
-    useNavigate();
+  const [error, setError] =
+    useState("");
 
-  const handleSubmit =
-    async (e) => {
+  const [success, setSuccess] =
+    useState("");
 
-      e.preventDefault();
+  const handleSubmit = async (e) => {
 
-      if (loading) return;
+    e.preventDefault();
 
-      setLoading(true);
+    if (loading) return;
 
-      setError("");
+    setError("");
+    setSuccess("");
 
-      try {
+    if (newPassword.length < 6) {
 
-        const res =
-          await API.post(
-            "/org/login",
-            {
-              email,
-              password,
-            }
-          );
+      return setError(
+        "Password must be at least 6 characters"
+      );
 
-        localStorage.setItem(
-          "orgToken",
-          res.data.token
-        );
+    }
 
-        setOrgLoggedIn(true);
+    if (newPassword !== confirmPassword) {
 
-        if (
-          res.data.mustChangePassword
-        ) {
+      return setError(
+        "Passwords do not match"
+      );
 
-          navigate(
-            "/org/change-password"
-          );
+    }
 
-        } else {
+    setLoading(true);
 
-          navigate(
-            "/org/dashboard"
-          );
+    try {
 
+      const res = await API.post(
+        "/org/reset-password",
+        {
+          email,
+          code,
+          newPassword,
         }
+      );
 
-      } catch (err) {
+      setSuccess(res.data.message);
 
-        setError(
+      setTimeout(() => {
 
-          err.response?.data?.message ||
+        navigate("/org/login");
 
-          "Login failed"
+      }, 1800);
 
-        );
+    } catch (err) {
 
-      } finally {
+      setError(
 
-        setLoading(false);
+        err.response?.data?.message ||
 
-      }
-    };
+        "Password reset failed"
+
+      );
+
+    } finally {
+
+      setLoading(false);
+
+    }
+  };
 
   return (
     <div style={styles.page}>
 
-      {/* LEFT SIDE */}
+      {/* LEFT */}
       <div style={styles.leftPanel}>
 
         <div style={styles.overlay}></div>
@@ -96,39 +115,36 @@ const OrganizationLogin = ({ setOrgLoggedIn }) => {
           </div>
 
           <h1 style={styles.heroTitle}>
-            Run Your
-            Football League
-            Like a Pro.
+            Secure Your
+            Organization
+            Account.
           </h1>
 
           <p style={styles.heroText}>
-            Manage teams, fixtures,
-            standings, and live
-            matches from one modern
-            football management
-            platform.
+            Verify your reset code and create
+            a strong new password for your
+            organization dashboard.
           </p>
 
         </div>
 
       </div>
 
-      {/* RIGHT SIDE */}
+      {/* RIGHT */}
       <div style={styles.rightPanel}>
 
         <div style={styles.card}>
 
           <div style={styles.badge}>
-            Organization Portal
+            Password Reset
           </div>
 
           <h2 style={styles.heading}>
-            Welcome Back
+            Reset Password
           </h2>
 
           <p style={styles.subText}>
-            Sign in to continue
-            managing your leagues.
+            Enter the OTP sent to your email.
           </p>
 
           {error && (
@@ -137,8 +153,15 @@ const OrganizationLogin = ({ setOrgLoggedIn }) => {
             </div>
           )}
 
+          {success && (
+            <div style={styles.successBox}>
+              {success}
+            </div>
+          )}
+
           <form onSubmit={handleSubmit}>
 
+            {/* EMAIL */}
             <div style={styles.inputGroup}>
 
               <label style={styles.label}>
@@ -147,12 +170,9 @@ const OrganizationLogin = ({ setOrgLoggedIn }) => {
 
               <input
                 type="email"
-                placeholder="organization@email.com"
                 value={email}
                 onChange={(e) =>
-                  setEmail(
-                    e.target.value
-                  )
+                  setEmail(e.target.value)
                 }
                 required
                 style={styles.input}
@@ -160,18 +180,39 @@ const OrganizationLogin = ({ setOrgLoggedIn }) => {
 
             </div>
 
+            {/* OTP */}
             <div style={styles.inputGroup}>
 
               <label style={styles.label}>
-                Password
+                Verification Code
+              </label>
+
+              <input
+                type="text"
+                placeholder="Enter 6-digit OTP"
+                value={code}
+                onChange={(e) =>
+                  setCode(e.target.value)
+                }
+                required
+                style={styles.input}
+              />
+
+            </div>
+
+            {/* NEW PASSWORD */}
+            <div style={styles.inputGroup}>
+
+              <label style={styles.label}>
+                New Password
               </label>
 
               <input
                 type="password"
-                placeholder="Enter your password"
-                value={password}
+                placeholder="New password"
+                value={newPassword}
                 onChange={(e) =>
-                  setPassword(
+                  setNewPassword(
                     e.target.value
                   )
                 }
@@ -181,14 +222,25 @@ const OrganizationLogin = ({ setOrgLoggedIn }) => {
 
             </div>
 
-            <div style={styles.actionsRow}>
+            {/* CONFIRM */}
+            <div style={styles.inputGroup}>
 
-              <Link
-                to="/org/forgot-password"
-                style={styles.forgotLink}
-              >
-                Forgot Password?
-              </Link>
+              <label style={styles.label}>
+                Confirm Password
+              </label>
+
+              <input
+                type="password"
+                placeholder="Confirm password"
+                value={confirmPassword}
+                onChange={(e) =>
+                  setConfirmPassword(
+                    e.target.value
+                  )
+                }
+                required
+                style={styles.input}
+              />
 
             </div>
 
@@ -197,18 +249,26 @@ const OrganizationLogin = ({ setOrgLoggedIn }) => {
               disabled={loading}
               style={{
                 ...styles.button,
-                opacity:
-                  loading ? 0.7 : 1,
+                opacity: loading ? 0.7 : 1,
               }}
             >
-
               {loading
-                ? "Signing In..."
-                : "Login to Dashboard"}
-
+                ? "Updating Password..."
+                : "Reset Password"}
             </button>
 
           </form>
+
+          <div style={styles.bottomRow}>
+
+            <Link
+              to="/org/login"
+              style={styles.backLink}
+            >
+              ← Back to Login
+            </Link>
+
+          </div>
 
         </div>
 
@@ -219,12 +279,10 @@ const OrganizationLogin = ({ setOrgLoggedIn }) => {
 };
 
 const styles = {
-
   page: {
     minHeight: "100vh",
     display: "flex",
-    fontFamily:
-      "Poppins, sans-serif",
+    fontFamily: "Poppins, sans-serif",
     background: "#0f172a",
   },
 
@@ -232,7 +290,7 @@ const styles = {
     width: "55%",
     position: "relative",
     backgroundImage:
-      "url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1400&auto=format&fit=crop')",
+      "url('https://images.unsplash.com/photo-1522778119026-d647f0596c20?q=80&w=1400&auto=format&fit=crop')",
     backgroundSize: "cover",
     backgroundPosition: "center",
     display: "flex",
@@ -245,7 +303,7 @@ const styles = {
     position: "absolute",
     inset: 0,
     background:
-      "linear-gradient(to bottom right, rgba(15,23,42,0.9), rgba(22,163,74,0.55))",
+      "linear-gradient(to bottom right, rgba(15,23,42,0.9), rgba(22,163,74,0.5))",
   },
 
   leftContent: {
@@ -322,7 +380,14 @@ const styles = {
     padding: "14px",
     borderRadius: "12px",
     marginBottom: "20px",
-    fontSize: "14px",
+  },
+
+  successBox: {
+    background: "#dcfce7",
+    color: "#166534",
+    padding: "14px",
+    borderRadius: "12px",
+    marginBottom: "20px",
   },
 
   inputGroup: {
@@ -345,20 +410,6 @@ const styles = {
     border: "1px solid #cbd5e1",
     fontSize: "15px",
     outline: "none",
-    transition: "0.2s",
-  },
-
-  actionsRow: {
-    display: "flex",
-    justifyContent: "flex-end",
-    marginBottom: "24px",
-  },
-
-  forgotLink: {
-    textDecoration: "none",
-    color: "#16a34a",
-    fontSize: "14px",
-    fontWeight: "600",
   },
 
   button: {
@@ -376,6 +427,16 @@ const styles = {
       "0 10px 25px rgba(22,163,74,0.35)",
   },
 
+  bottomRow: {
+    marginTop: "24px",
+    textAlign: "center",
+  },
+
+  backLink: {
+    textDecoration: "none",
+    color: "#16a34a",
+    fontWeight: "600",
+  },
 };
 
-export default OrganizationLogin;
+export default ResetPassword;

@@ -1,20 +1,24 @@
 import { useState } from "react";
 import API from "../utils/api";
-import { useNavigate, Link } from "react-router-dom";
 
-const OrganizationLogin = ({ setOrgLoggedIn }) => {
+import {
+  useNavigate,
+  Link,
+} from "react-router-dom";
+
+const ForgotPassword = () => {
 
   const [email, setEmail] =
     useState("");
 
-  const [password, setPassword] =
-    useState("");
+  const [loading, setLoading] =
+    useState(false);
 
   const [error, setError] =
     useState("");
 
-  const [loading, setLoading] =
-    useState(false);
+  const [success, setSuccess] =
+    useState("");
 
   const navigate =
     useNavigate();
@@ -30,47 +34,39 @@ const OrganizationLogin = ({ setOrgLoggedIn }) => {
 
       setError("");
 
+      setSuccess("");
+
       try {
 
         const res =
           await API.post(
-            "/org/login",
+            "/org/forgot-password",
+            { email }
+          );
+
+        setSuccess(
+          res.data.message
+        );
+
+        setTimeout(() => {
+
+          navigate(
+            "/org/reset-password",
             {
-              email,
-              password,
+              state: { email },
             }
           );
 
-        localStorage.setItem(
-          "orgToken",
-          res.data.token
-        );
-
-        setOrgLoggedIn(true);
-
-        if (
-          res.data.mustChangePassword
-        ) {
-
-          navigate(
-            "/org/change-password"
-          );
-
-        } else {
-
-          navigate(
-            "/org/dashboard"
-          );
-
-        }
+        }, 1500);
 
       } catch (err) {
 
         setError(
 
-          err.response?.data?.message ||
+          err.response?.data
+            ?.message ||
 
-          "Login failed"
+          "Failed to send reset code"
 
         );
 
@@ -84,7 +80,7 @@ const OrganizationLogin = ({ setOrgLoggedIn }) => {
   return (
     <div style={styles.page}>
 
-      {/* LEFT SIDE */}
+      {/* LEFT */}
       <div style={styles.leftPanel}>
 
         <div style={styles.overlay}></div>
@@ -96,44 +92,47 @@ const OrganizationLogin = ({ setOrgLoggedIn }) => {
           </div>
 
           <h1 style={styles.heroTitle}>
-            Run Your
-            Football League
-            Like a Pro.
+            Reset Your
+            Organization
+            Access.
           </h1>
 
           <p style={styles.heroText}>
-            Manage teams, fixtures,
-            standings, and live
-            matches from one modern
-            football management
-            platform.
+            Securely recover your organization
+            dashboard access using your
+            registered email address.
           </p>
 
         </div>
 
       </div>
 
-      {/* RIGHT SIDE */}
+      {/* RIGHT */}
       <div style={styles.rightPanel}>
 
         <div style={styles.card}>
 
           <div style={styles.badge}>
-            Organization Portal
+            Password Recovery
           </div>
 
           <h2 style={styles.heading}>
-            Welcome Back
+            Forgot Password
           </h2>
 
           <p style={styles.subText}>
-            Sign in to continue
-            managing your leagues.
+            Enter your registered organization email.
           </p>
 
           {error && (
             <div style={styles.errorBox}>
               {error}
+            </div>
+          )}
+
+          {success && (
+            <div style={styles.successBox}>
+              {success}
             </div>
           )}
 
@@ -150,45 +149,11 @@ const OrganizationLogin = ({ setOrgLoggedIn }) => {
                 placeholder="organization@email.com"
                 value={email}
                 onChange={(e) =>
-                  setEmail(
-                    e.target.value
-                  )
+                  setEmail(e.target.value)
                 }
                 required
                 style={styles.input}
               />
-
-            </div>
-
-            <div style={styles.inputGroup}>
-
-              <label style={styles.label}>
-                Password
-              </label>
-
-              <input
-                type="password"
-                placeholder="Enter your password"
-                value={password}
-                onChange={(e) =>
-                  setPassword(
-                    e.target.value
-                  )
-                }
-                required
-                style={styles.input}
-              />
-
-            </div>
-
-            <div style={styles.actionsRow}>
-
-              <Link
-                to="/org/forgot-password"
-                style={styles.forgotLink}
-              >
-                Forgot Password?
-              </Link>
 
             </div>
 
@@ -201,14 +166,23 @@ const OrganizationLogin = ({ setOrgLoggedIn }) => {
                   loading ? 0.7 : 1,
               }}
             >
-
               {loading
-                ? "Signing In..."
-                : "Login to Dashboard"}
-
+                ? "Sending Code..."
+                : "Send Reset Code"}
             </button>
 
           </form>
+
+          <div style={styles.bottomRow}>
+
+            <Link
+              to="/org/login"
+              style={styles.backLink}
+            >
+              ← Back to Login
+            </Link>
+
+          </div>
 
         </div>
 
@@ -219,12 +193,10 @@ const OrganizationLogin = ({ setOrgLoggedIn }) => {
 };
 
 const styles = {
-
   page: {
     minHeight: "100vh",
     display: "flex",
-    fontFamily:
-      "Poppins, sans-serif",
+    fontFamily: "Poppins, sans-serif",
     background: "#0f172a",
   },
 
@@ -232,7 +204,7 @@ const styles = {
     width: "55%",
     position: "relative",
     backgroundImage:
-      "url('https://images.unsplash.com/photo-1574629810360-7efbbe195018?q=80&w=1400&auto=format&fit=crop')",
+      "url('https://images.unsplash.com/photo-1517466787929-bc90951d0974?q=80&w=1400&auto=format&fit=crop')",
     backgroundSize: "cover",
     backgroundPosition: "center",
     display: "flex",
@@ -245,7 +217,7 @@ const styles = {
     position: "absolute",
     inset: 0,
     background:
-      "linear-gradient(to bottom right, rgba(15,23,42,0.9), rgba(22,163,74,0.55))",
+      "linear-gradient(to bottom right, rgba(15,23,42,0.9), rgba(22,163,74,0.5))",
   },
 
   leftContent: {
@@ -322,11 +294,18 @@ const styles = {
     padding: "14px",
     borderRadius: "12px",
     marginBottom: "20px",
-    fontSize: "14px",
+  },
+
+  successBox: {
+    background: "#dcfce7",
+    color: "#166534",
+    padding: "14px",
+    borderRadius: "12px",
+    marginBottom: "20px",
   },
 
   inputGroup: {
-    marginBottom: "22px",
+    marginBottom: "24px",
   },
 
   label: {
@@ -345,20 +324,6 @@ const styles = {
     border: "1px solid #cbd5e1",
     fontSize: "15px",
     outline: "none",
-    transition: "0.2s",
-  },
-
-  actionsRow: {
-    display: "flex",
-    justifyContent: "flex-end",
-    marginBottom: "24px",
-  },
-
-  forgotLink: {
-    textDecoration: "none",
-    color: "#16a34a",
-    fontSize: "14px",
-    fontWeight: "600",
   },
 
   button: {
@@ -376,6 +341,16 @@ const styles = {
       "0 10px 25px rgba(22,163,74,0.35)",
   },
 
+  bottomRow: {
+    marginTop: "24px",
+    textAlign: "center",
+  },
+
+  backLink: {
+    textDecoration: "none",
+    color: "#16a34a",
+    fontWeight: "600",
+  },
 };
 
-export default OrganizationLogin;
+export default ForgotPassword;

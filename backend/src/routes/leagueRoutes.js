@@ -1,26 +1,63 @@
 const express = require("express");
+
 const router = express.Router();
-const multer = require("multer");
 
 const {
+
   createLeague,
+
   getLeagues,
-} = require("../controllers/leagueController");
 
-const organizationAuth = require("../middleware/organizationAuth");
+  updateLeague,
 
-// Temporary local storage before Cloudinary upload
-const upload = multer({ dest: "uploads/" });
+  deleteLeague,
 
-// Create league (with logo upload)
+} = require(
+  "../controllers/leagueController"
+);
+
+const organizationAuth = require(
+  "../middleware/organizationAuth"
+);
+
+/* =========================================
+   CREATE LEAGUE
+========================================= */
+
 router.post(
   "/",
   organizationAuth,
-  upload.single("logo"),
   createLeague
 );
 
-// Get all leagues of logged-in organization
-router.get("/", organizationAuth, getLeagues);
+/* =========================================
+   GET LEAGUES
+========================================= */
+
+router.get(
+  "/",
+  organizationAuth,
+  getLeagues
+);
+
+/* =========================================
+   UPDATE LEAGUE
+========================================= */
+
+router.put(
+  "/:leagueId",
+  organizationAuth,
+  updateLeague
+);
+
+/* =========================================
+   DELETE LEAGUE
+========================================= */
+
+router.delete(
+  "/:leagueId",
+  organizationAuth,
+  deleteLeague
+);
 
 module.exports = router;

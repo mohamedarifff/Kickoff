@@ -269,7 +269,7 @@ We regret to inform you that your organization "${request.organizationName}" has
 Reason:
 ${request.rejectionReason}
 
-You may submit a new request if you wish.
+You may submit a new request if you wish and state your purpose clearly.
 
 Regards,
 Kickoff Support Team`

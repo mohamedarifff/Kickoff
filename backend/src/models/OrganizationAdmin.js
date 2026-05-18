@@ -41,7 +41,7 @@ const organizationAdminSchema = new mongoose.Schema(
 
     mustChangePassword: {
       type: Boolean,
-      default: true, // true when created with temp password
+      default: true,
     },
 
     approvedBy: {
@@ -50,6 +50,20 @@ const organizationAdminSchema = new mongoose.Schema(
     },
 
     lastLogin: {
+      type: Date,
+      default: null,
+    },
+
+    /* =====================================
+       PASSWORD RESET
+    ===================================== */
+
+    resetCode: {
+      type: String,
+      default: null,
+    },
+
+    resetCodeExpiry: {
       type: Date,
       default: null,
     },

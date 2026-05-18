@@ -20,11 +20,23 @@ const leagueSchema = new mongoose.Schema(
       required: true,
     },
 
+    /* =========================
+       LEAGUE FORMAT
+    ========================= */
+
     format: {
       type: String,
-      enum: ["round_robin", "knockout", "group_knockout"],
+      enum: [
+        "round_robin",
+        "knockout",
+        "hybrid",
+      ],
       default: "round_robin",
     },
+
+    /* =========================
+       ROUND ROBIN SETTINGS
+    ========================= */
 
     roundRobinType: {
       type: String,
@@ -32,10 +44,18 @@ const leagueSchema = new mongoose.Schema(
       default: "single",
     },
 
+    /* =========================
+       HYBRID SETTINGS
+    ========================= */
+
     groups: {
       type: Number,
       default: 0,
     },
+
+    /* =========================
+       TEAM SETTINGS
+    ========================= */
 
     numberOfTeams: {
       type: Number,
@@ -43,23 +63,44 @@ const leagueSchema = new mongoose.Schema(
       min: 2,
     },
 
+    /* =========================
+       LEAGUE STATUS
+    ========================= */
+
     status: {
       type: String,
-      enum: ["draft", "fixtures_generated", "ongoing", "completed"],
+      enum: [
+        "draft",
+        "active",
+        "completed",
+      ],
       default: "draft",
     },
+
+    /* =========================
+       DESCRIPTION
+    ========================= */
 
     description: {
       type: String,
       default: "",
     },
 
+    /* =========================
+       LEAGUE LOGO
+    ========================= */
+
     logo: {
-      type: String, 
+      type: String,
       default: "",
     },
   },
-  { timestamps: true }
+  {
+    timestamps: true,
+  }
 );
 
-module.exports = mongoose.model("League", leagueSchema);
+module.exports = mongoose.model(
+  "League",
+  leagueSchema
+);

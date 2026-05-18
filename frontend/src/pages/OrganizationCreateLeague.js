@@ -1,85 +1,205 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
+import API from "../utils/api";
 import { useNavigate } from "react-router-dom";
 
 const OrganizationCreateLeague = () => {
+
   const navigate = useNavigate();
 
   const [form, setForm] = useState({
     name: "",
     season: "",
-    format: "round-robin",
+    format: "round_robin",
     numberOfTeams: "",
     description: "",
   });
 
-  const [logo, setLogo] = useState(null);
-  const [preview, setPreview] = useState(null);
-  const [error, setError] = useState("");
-  const [success, setSuccess] = useState("");
+  const [logo, setLogo] =
+    useState(null);
+
+  const [preview, setPreview] =
+    useState(null);
+
+  const [error, setError] =
+    useState("");
+
+  const [success, setSuccess] =
+    useState("");
+
+  const [submitting, setSubmitting] =
+    useState(false);
 
   useEffect(() => {
-    const token = localStorage.getItem("orgToken");
-    if (!token) navigate("/org/login");
+
+    const token =
+      localStorage.getItem(
+        "orgToken"
+      );
+
+    if (!token) {
+
+      navigate("/org/login");
+
+    }
+
   }, [navigate]);
 
   const handleChange = (e) => {
-    setForm({ ...form, [e.target.name]: e.target.value });
+
+    setForm({
+      ...form,
+      [e.target.name]:
+        e.target.value,
+    });
+
   };
 
   const handleLogoChange = (e) => {
-    const file = e.target.files[0];
+
+    const file =
+      e.target.files[0];
+
     if (!file) return;
 
     setLogo(file);
-    setPreview(URL.createObjectURL(file));
+
+    setPreview(
+      URL.createObjectURL(file)
+    );
   };
 
-  const [submitting, setSubmitting] = useState(false);
+  const handleSubmit =
+    async (e) => {
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    if (submitting) return;
-    setSubmitting(true);
-    setError("");
-    setSuccess("");
+      e.preventDefault();
 
-    try {
-      const token = localStorage.getItem("orgToken");
+      if (submitting) return;
 
-      const formData = new FormData();
-      formData.append("name", form.name);
-      formData.append("season", form.season);
-      formData.append("format", form.format);
-      formData.append("numberOfTeams", form.numberOfTeams);
-      formData.append("description", form.description);
-      if (logo) formData.append("logo", logo);
+      setSubmitting(true);
 
-      await axios.post(
-        "http://localhost:5000/api/leagues",
-        formData,
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
+      setError("");
+
+      setSuccess("");
+
+      /* VALIDATIONS */
+
+      if (!form.name.trim()) {
+
+        setError(
+          "League name is required"
+        );
+
+        setSubmitting(false);
+
+        return;
+      }
+
+      if (!form.season.trim()) {
+
+        setError(
+          "Season is required"
+        );
+
+        setSubmitting(false);
+
+        return;
+      }
+
+      if (
+        Number(form.numberOfTeams) < 2
+      ) {
+
+        setError(
+          "League must have at least 2 teams"
+        );
+
+        setSubmitting(false);
+
+        return;
+      }
+
+      try {
+
+        const formData =
+          new FormData();
+
+        formData.append(
+          "name",
+          form.name
+        );
+
+        formData.append(
+          "season",
+          form.season
+        );
+
+        formData.append(
+          "format",
+          form.format
+        );
+
+        formData.append(
+          "numberOfTeams",
+          form.numberOfTeams
+        );
+
+        formData.append(
+          "description",
+          form.description
+        );
+
+        if (logo) {
+
+          formData.append(
+            "logo",
+            logo
+          );
+
         }
-      );
 
-      setSuccess("League created successfully 🎉");
+        await API.post(
+          "/leagues",
+          formData,
+          {
+            headers: {
+              "Content-Type":
+                "multipart/form-data",
+            },
+          }
+        );
 
-      setTimeout(() => {
-        navigate("/org/leagues");
-      }, 1200);
+        setSuccess(
+          "League created successfully 🎉"
+        );
 
-    } catch (err) {
-      setError(err.response?.data?.message || "Failed to create league");
-    } finally {
-      setSubmitting(false);
-    }
-  };
+        setTimeout(() => {
+
+          navigate(
+            "/org/leagues"
+          );
+
+        }, 1200);
+
+      } catch (err) {
+
+        setError(
+
+          err.response?.data
+            ?.message ||
+
+          "Failed to create league"
+
+        );
+
+      } finally {
+
+        setSubmitting(false);
+
+      }
+    };
 
   return (
+
     <div style={styles.page}>
 
       {/* Top Bar */}
@@ -89,23 +209,50 @@ const OrganizationCreateLeague = () => {
 
       <div style={styles.layout}>
 
-        {/* LEFT SIDE (40%) */}
+        {/* LEFT SIDE */}
         <div style={styles.leftPane}>
-          <h2 style={styles.leftTitle}>Create a New League</h2>
+
+          <h2 style={styles.leftTitle}>
+            Create a New League
+          </h2>
+
           <p style={styles.leftDesc}>
-            Set up your league details, upload a logo, and configure the
-            competition format.
+            Set up your league details,
+            upload a logo, and configure
+            the competition format.
           </p>
+
+          <button
+            style={styles.backBtn}
+            onClick={() =>
+              navigate("/org/leagues")
+            }
+          >
+            ← Back to Leagues
+          </button>
+
         </div>
 
-        {/* RIGHT SIDE (60%) */}
+        {/* RIGHT SIDE */}
         <div style={styles.rightPane}>
+
           <div style={styles.card}>
 
-            {error && <p style={styles.error}>{error}</p>}
-            {success && <p style={styles.success}>{success}</p>}
+            {error && (
+              <p style={styles.error}>
+                {error}
+              </p>
+            )}
 
-            <form onSubmit={handleSubmit}>
+            {success && (
+              <p style={styles.success}>
+                {success}
+              </p>
+            )}
+
+            <form
+              onSubmit={handleSubmit}
+            >
 
               <input
                 type="text"
@@ -133,9 +280,19 @@ const OrganizationCreateLeague = () => {
                 onChange={handleChange}
                 style={styles.input}
               >
-                <option value="round-robin">Round Robin</option>
-                <option value="knockout">Knockout</option>
-                <option value="hybrid">Hybrid</option>
+
+                <option value="round_robin">
+                  Round Robin
+                </option>
+
+                <option value="knockout">
+                  Knockout
+                </option>
+
+                <option value="group_knockout">
+                  Group Knockout
+                </option>
+
               </select>
 
               <input
@@ -158,47 +315,70 @@ const OrganizationCreateLeague = () => {
 
               {/* Logo Upload */}
               <div style={styles.logoSection}>
-                <label style={styles.logoLabel}>League Logo</label>
+
+                <label style={styles.logoLabel}>
+                  League Logo
+                </label>
+
                 <input
                   type="file"
                   accept="image/*"
                   onChange={handleLogoChange}
                 />
+
                 {preview && (
+
                   <img
                     src={preview}
                     alt="Logo Preview"
                     style={styles.preview}
                   />
+
                 )}
+
               </div>
 
               <button
-              type="submit"
-              style={{
-                ...styles.button,
-                opacity: submitting ? 0.6 : 1,
-                cursor: submitting ? "not-allowed" : "pointer"
-              }}
-              disabled={submitting}
+                type="submit"
+                style={{
+                  ...styles.button,
+                  opacity:
+                    submitting
+                      ? 0.6
+                      : 1,
+                  cursor:
+                    submitting
+                      ? "not-allowed"
+                      : "pointer",
+                }}
+                disabled={submitting}
               >
-                {submitting ? "Creating..." : "Create League"}
+
+                {submitting
+                  ? "Creating..."
+                  : "Create League"}
+
               </button>
 
             </form>
+
           </div>
+
         </div>
 
       </div>
+
     </div>
   );
 };
 
 const styles = {
+
   page: {
     minHeight: "100vh",
     background: "#FBF6E9",
-    fontFamily: "Poppins, sans-serif",
+    fontFamily:
+      "Poppins, sans-serif",
   },
 
   topbar: {
@@ -214,9 +394,8 @@ const styles = {
 
   layout: {
     display: "flex",
-    paddingTop:"40px",
-    paddingBottom:"60px",
-
+    paddingTop: "40px",
+    paddingBottom: "60px",
   },
 
   leftPane: {
@@ -237,6 +416,18 @@ const styles = {
     lineHeight: "1.6",
   },
 
+  backBtn: {
+    marginTop: "24px",
+    padding: "12px 18px",
+    border: "none",
+    borderRadius: "10px",
+    background: "#111827",
+    color: "white",
+    cursor: "pointer",
+    fontWeight: "600",
+    width: "fit-content",
+  },
+
   rightPane: {
     width: "60%",
     display: "flex",
@@ -249,7 +440,8 @@ const styles = {
     background: "white",
     padding: "40px",
     borderRadius: "16px",
-    boxShadow: "0 10px 30px rgba(0,0,0,0.08)",
+    boxShadow:
+      "0 10px 30px rgba(0,0,0,0.08)",
   },
 
   input: {
